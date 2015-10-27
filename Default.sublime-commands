@@ -1,0 +1,5 @@
+[
+    { "command": "new_tomato", "caption": "WorkTime: New Pomodoro Time" },
+    { "command": "show_tomato_progress", "caption": "WorkTime: Show Status" },
+    { "command": "hide_tomato_progress", "caption": "WorkTime: Hide Status" },
+]

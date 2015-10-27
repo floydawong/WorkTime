@@ -1,0 +1,3 @@
+[
+    { "keys": ["alt+shift+p"], "command": "show_overlay", "args": {"overlay": "command_palette", "text": "WorkTime: "} },
+]
