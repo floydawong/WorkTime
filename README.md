@@ -10,11 +10,11 @@
 > 快捷键: **alt+shift+p**
 > 出现功能列表
 
-+ ** New Pomodoro Time **  
++ New Pomodoro Time  
 > 创建一个番茄时间(25分钟)  
-+ ** Show Status **  
++ Show Status  
 > 在状态栏显示时间进度  
-+ ** Hide Status **  
++ Hide Status  
 > 在状态栏隐藏时间进度  
 
 ## [Todo](./Todo.md)
