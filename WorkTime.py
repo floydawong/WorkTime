@@ -4,10 +4,10 @@ import sublime_plugin
 import os
 
 
-
 ending_words = '快乐的时间总是过得特别快, 又到时间讲bye bye!'
 def say_ending():
-	os.popen('say ' + ending_words)
+	if sublime.platform() == "osx":
+		os.popen('say ' + ending_words)
 
 
 class TomatoTime():
@@ -93,7 +93,8 @@ tomato = TomatoTime()
 class NewTomatoCommand(sublime_plugin.TextCommand):
 
 	def run(self, edit):
-		tomato.start()
+		say_ending()
+		# tomato.start()
 
 
 	def is_visible(self):
