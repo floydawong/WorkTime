@@ -93,8 +93,7 @@ tomato = TomatoTime()
 class NewTomatoCommand(sublime_plugin.TextCommand):
 
 	def run(self, edit):
-		say_ending()
-		# tomato.start()
+		tomato.start()
 
 
 	def is_visible(self):
