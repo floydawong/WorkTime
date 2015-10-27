@@ -1,13 +1,13 @@
 
 import sublime
 import sublime_plugin
+import os
 
 
-def play_sound():
-	# import os  
-	# os.popen2('aplay -q' + soundFile)  
-	# os.popen2('open 1.mp3')
-	pass
+
+ending_words = '快乐的时间总是过得特别快, 又到时间讲bye bye!'
+def say_ending():
+	os.popen('say ' + ending_words)
 
 
 class TomatoTime():
@@ -27,6 +27,7 @@ class TomatoTime():
 		self.show_status()
 
 		if self.chekck_finish() is True:
+			say_ending()
 			sublime.message_dialog("Have a rest!")
 			return
 		else:
