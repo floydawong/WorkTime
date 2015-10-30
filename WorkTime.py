@@ -5,30 +5,35 @@ import os
 import time
 
 
-TOTAL_TIME = 30 * 25
-TICK_INTERVAL = 2
+DELAY_TIME = 1
+DEFAULT_TOMATO_TIME = 25
+TICK_INTERVAL = 1
 ENDING_WORDS = '快乐的时间总是过得特别快, 又到时间讲bye bye!'
+CACHE_FILE_PATH = "/WorkTime.cache"
+WORKTIME_SETTINGS = "WorkTime.sublime-settings"
 
-
-def say_ending():
-	if sublime.platform() == "osx":
-		os.popen('say ' + ENDING_WORDS)
-
-
-class LocalTime():
-
+# ------------------------------------------------------------------------------
+# Setting
+# ------------------------------------------------------------------------------
+class WorkTimeDo():
 	def __init__(self):
-		self.filename = sublime.packages_path() + "/WorkTime.cache"
+		self.settings = sublime.load_settings(WORKTIME_SETTINGS)
+		self.filename = sublime.packages_path() + CACHE_FILE_PATH
 
+	def get_config(self, key, default):
+		return self.settings.get(key,default)
 
-	def save_time(self, time = ''):
+	def say_ending(self):
+		if sublime.platform() == "osx":
+			os.popen('say ' + ENDING_WORDS)
+
+	def save_time(self, time = None):
 		try:
 			fp = open(self.filename, "w+")
-			fp.write(str(time))
+			fp.write(time)
 			fp.close()
 		except:
 			sublime.error_message("Cann't save current time to local.")
-
 
 	def load_time(self):
 		try:
@@ -41,77 +46,58 @@ class LocalTime():
 			fp.close()
 			return None
 
+	def clear_time(self):
+		self.save_time('')
 
-
-class TomatoTime():
+# ------------------------------------------------------------------------------
+# Tomato
+# ------------------------------------------------------------------------------
+class Tomato(WorkTimeDo):
 
 	def __init__(self):
-		self.counter         = 0
-		self.thread_flag     = False
+		super(Tomato, self).__init__()
+		self.total_time = self.get_config("tomato_time", DEFAULT_TOMATO_TIME) * 60
+		self.counter = 0
+		self.actived = False
 		self.status_visiable = True
+		self.check_last_time()
 
-
-	def tick(self):
-		if self.thread_flag is False:
-			return
-
-		self.show_status()
-
-		if self.chekck_finish() is True:
-			say_ending()
-			sublime.message_dialog("Have a rest!")
-			return
-		else:
-			self.counter += 1
-
-		sublime.set_timeout_async(self.tick, TICK_INTERVAL * 1000)
-
-
-	def start(self):
-		self.thread_flag = True
-		sublime.set_timeout_async(self.tick)
-
+	def start(self, start_time = 0):
+		self.counter = start_time
+		self.actived = True
+		# self.total_time = self.get_config("tomato_time", DEFAULT_TOMATO_TIME) * 60
+		self.save_time(str(time.time()))
 
 	def stop(self):
 		self.counter = 0
-		self.thread_flag = False
-
-		local_time.save_time()
-
-
-	def resume(self, time):
-		self.counter = time
-		self.start()
+		self.actived = False
+		self.clear_time()
+		self.say_ending()
+		sublime.message_dialog("Have a rest!")
 
 
-	def stopped(self):
-		return self.thread_flag
-
-
-	def chekck_finish(self):
-		if self.counter >= TOTAL_TIME:
+	def update(self):
+		self.counter += 1
+		self.show_progress()
+		if self.counter >= self.total_time:
 			self.stop()
-			return True
-		return False
 
+	def is_actived(self):
+		return self.actived
 
 	def set_status_visiable(self, flag):
 		self.status_visiable = flag
-		if flag is False:
-			sublime.status_message('')
-		else:
-			self.show_status()
-
-
+		self.show_progress()
+	
 	def get_status_visiable(self):
 		return self.status_visiable
 
-
-	def show_status(self):
+	def show_progress(self):
 		if self.status_visiable is False:
+			sublime.status_message('')
 			return
 
-		progress = int(self.counter / TOTAL_TIME * 100)
+		progress = int(self.counter / self.total_time * 100)
 		msg = "|" + \
 			progress * "-" + \
 			"o" + \
@@ -121,37 +107,62 @@ class TomatoTime():
 		sublime.status_message(msg)
 
 
-tomato = TomatoTime()
-local_time = None
-
-
-def delay_load():
-	global local_time
-	local_time = LocalTime()
-	last_time = local_time.load_time()
-
-	if last_time != "None":
+	def check_last_time(self):
+		last_time = self.load_time()
 		try:
-			cur_time = int(time.time())
-			result = cur_time - int(last_time)
-			if result < TOTAL_TIME * TICK_INTERVAL:
-				tomato.resume(result)
+			last_time = float(last_time)
 		except:
-			pass
+			self.clear_time()
+			return
 
-sublime.set_timeout_async(lambda:delay_load() , 5000)
+		cur_time = time.time()
+		result = cur_time - last_time
+		if result >= self.total_time:
+			self.clear_time()
+		else:
+			self.start(int(result))
 
 
 
+class Tick():
+
+	def __init__(self):
+		self.thread_flag = False
+
+	def callback(self):
+		if not self.thread_flag: return
+
+		if tomato.is_actived():
+			tomato.update()
+
+		sublime.set_timeout_async(self.callback, 1000)
+
+	def start(self):
+		self.thread_flag = True
+		self.callback()
+
+	def stop(self):
+		self.thread_flag = False
+
+
+def delay():
+	global tomato
+	global tick
+	tomato = Tomato()
+	tick = Tick() 
+	tick.start()
+
+sublime.set_timeout_async(lambda:delay(), DELAY_TIME * 1000)
+# ------------------------------------------------------------------------------
+# Tomato
+# ------------------------------------------------------------------------------
 class NewTomatoCommand(sublime_plugin.TextCommand):
 
 	def run(self, edit):
-		local_time.save_time(int(time.time()))
 		tomato.start()
 
-
 	def is_visible(self):
-		return not tomato.stopped()
+		return not tomato.is_actived()
 
 
 
@@ -160,9 +171,8 @@ class ShowTomatoProgressCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		tomato.set_status_visiable(True)
 
-
 	def is_visible(self):
-		return tomato.stopped() and not tomato.get_status_visiable()
+		 return tomato.is_actived() and not tomato.get_status_visiable()
 
 
 
@@ -171,7 +181,6 @@ class HideTomatoProgressCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		tomato.set_status_visiable(False)
 
-
 	def is_visible(self):
-		return tomato.stopped() and tomato.get_status_visiable()
+		 return tomato.is_actived() and tomato.get_status_visiable()
 
