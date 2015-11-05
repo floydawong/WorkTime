@@ -1,4 +1,7 @@
 {
     "tomato_time": 25,
+    // only Mac
+    "ending_words": "休息一下, 5分钟后再回来",
+    // only Windows
     "audio_file_path": ""
 }
