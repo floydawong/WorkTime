@@ -276,14 +276,14 @@ class HideTomatoProgressCommand(sublime_plugin.TextCommand):
 class OpenWorkTimeNoteCommand(sublime_plugin.WindowCommand):
 
 	def run(self):
-		view = self.window.open_file(TASK_FILE)
+		view = self.window.open_file(sublime.packages_path() + PACKAGE_NAME + TASK_FILE)
 
 
 
 class WorkTimeEventCommand(sublime_plugin.EventListener):
 
 	def on_post_save(self, view):
-		if view.file_name().find(TASK_FILE) < 0:
+		if view.file_name().find(sublime.packages_path() + PACKAGE_NAME + TASK_FILE) < 0:
 			return
 		parse_wkt(view.file_name())
 
