@@ -25,7 +25,7 @@ git clone https://github.com/FloydaGithub/WorkTime.git
 
 - Show Status    
 > Show sublime status message
-![status](./res/status.png)
+![status-msg](./res/status-msg.png)
 
 - Hide Status    
 > Hide sublime status message
