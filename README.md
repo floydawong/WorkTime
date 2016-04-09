@@ -1,19 +1,31 @@
 # WorkTime
-> 私人定制的一款用于管理工作时间的sublime的插件.
-> 其中包括"番茄工作时间", "任务提醒" 等功能.
+> A SublimeText 2/3 package for time management
+
+- Create a tomato time.  
+- Make a list of tasks, and alerts.
 
 
-## 安装
-> git clone到sublime的package目录下, 即可
+## Install 
+```bash
+cd ../Sublime Text 3/Packages/
+git clone https://github.com/FloydaGithub/WorkTime.git
+```
 
-## 使用
-> 快捷键: **alt+shift+p**
-> 出现功能列表
+## Usage
+> default key bindings: **alt+shift+p**  
 
-+ New Pomodoro Time  
-> 创建一个番茄时间(25分钟)  
-+ Show Status  
-> 在状态栏显示时间进度  
-+ Hide Status  
-> 在状态栏隐藏时间进度  
 
+- New Pomodoro Time    
+> create a pomodopro time about 25 minutes  
+![quick-panel](./res/quick-panel.png)
+
+- Open Work Time Note  
+> Open .wkt file and edit it  
+![wkt](./res/wkt.png)
+
+- Show Status    
+> Show sublime status message
+![status](./res/status.png)
+
+- Hide Status    
+> Hide sublime status message
